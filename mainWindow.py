@@ -16,6 +16,6 @@ class MainWindow(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
-    def getFiles(self):
+    def getFiles(self): 
         files = QFileDialog.getOpenFileNames(self, filter="Excel files (*.xls, *xlsx);; All files (*)")[0]  
         print(files)
