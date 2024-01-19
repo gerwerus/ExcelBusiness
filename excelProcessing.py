@@ -11,8 +11,9 @@ class ExcelTread(QThread):
         self.ln = ln
 
     def run(self):
+        print(self.mainWindow.dateEdit.date())
         for index, obj in enumerate(self.objects):
-            print(obj.getInstituteName(), obj.getCode(), obj.getProfile())
+            print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getDateStart())
             self.mainWindow.progressBar.setValue(int(((index + 1)/self.ln) * 100)) 
 class ExcelProccessing():
     def __init__(self, filename):
@@ -25,5 +26,7 @@ class ExcelProccessing():
         return self.titleList['D27'].value
     def getProfile(self):
         return self.titleList['D30'].value
+    def getDateStart(self):
+        return self.titleList['W40'].value
         
       

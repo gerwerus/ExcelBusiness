@@ -2,7 +2,7 @@ from excelProcessing import ExcelProccessing, ExcelTread
 import time
 from PySide6.QtWidgets import (
     QLineEdit, QPushButton, QApplication, QTextEdit,
-    QVBoxLayout, QDialog, QGroupBox, QMainWindow, QRadioButton,
+    QDateEdit, QDialog, QGroupBox, QMainWindow, QRadioButton,
     QFileDialog, QWidget, QDateEdit, QLabel, QGridLayout,
     QDialogButtonBox, QMessageBox, QTabWidget, QScrollArea, QProgressBar
     )
@@ -14,11 +14,15 @@ class MainWindow(QMainWindow):
         self.files = []
         layout = QGridLayout()
         self.getFilesButton = QPushButton("Загрузить файлы")
+        self.dateEdit = QDateEdit()
+        # self.dateEdit.date()
         self.progressBar = QProgressBar()
         self.progressBar.setValue(0) 
         self.getFilesButton.clicked.connect(self.getFiles)
-        layout.addWidget(self.getFilesButton, 0, 0)
-        layout.addWidget(self.progressBar, 1, 0)
+        layout.addWidget(QLabel("Дата формирования:"), 0, 0)
+        layout.addWidget(self.dateEdit, 0, 1)
+        layout.addWidget(self.getFilesButton, 1, 0, 1, 2)
+        layout.addWidget(self.progressBar, 2, 0, 1, 2)
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
