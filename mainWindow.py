@@ -1,5 +1,5 @@
 from excelProcessing import ExcelProccessing, ExcelTread
-import time
+from PySide6.QtCore import QDate
 from PySide6.QtWidgets import (
     QLineEdit, QPushButton, QApplication, QTextEdit,
     QDateEdit, QDialog, QGroupBox, QMainWindow, QRadioButton,
@@ -15,6 +15,7 @@ class MainWindow(QMainWindow):
         layout = QGridLayout()
         self.getFilesButton = QPushButton("Загрузить файлы")
         self.dateEdit = QDateEdit()
+        self.dateEdit.setDate(QDate.currentDate())
         # self.dateEdit.date()
         self.progressBar = QProgressBar()
         self.progressBar.setValue(0) 

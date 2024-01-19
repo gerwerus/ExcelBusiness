@@ -1,4 +1,4 @@
-from PySide6.QtCore import QThread
+from PySide6.QtCore import QThread, QDate
 from openpyxl import load_workbook
 class ExcelTread(QThread):
     def __init__(self, mainWindow):
@@ -11,10 +11,15 @@ class ExcelTread(QThread):
         self.ln = ln
 
     def run(self):
-        # print(self.mainWindow.dateEdit.date())
+        formDate = self.mainWindow.dateEdit.date()        
         for index, obj in enumerate(self.objects):
             # print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getDateStart())
-            obj.getView()
+            startDate =  QDate(int(obj.getDateStart()), 9, 1)
+            if startDate >= formDate:
+                return
+            # obj.getView()
+            dt = startDate.daysTo(formDate)
+            print(dt, dt // 365 + 1, (dt % 365) // 153)
             self.mainWindow.progressBar.setValue(int(((index + 1)/self.ln) * 100)) 
 class ExcelProccessing():
     def __init__(self, filename):
