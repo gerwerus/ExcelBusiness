@@ -12,15 +12,18 @@ class ExcelTread(QThread):
 
     def run(self):
         for index, obj in enumerate(self.objects):
-            print(obj.getInstituteName())
+            print(obj.getInstituteName(), obj.getCode(), obj.getProfile())
             self.mainWindow.progressBar.setValue(int(((index + 1)/self.ln) * 100)) 
 class ExcelProccessing():
     def __init__(self, filename):
         self.filename = filename
         self.book = load_workbook(filename)
         self.titleList = self.book['Титул']
-        self.instituteName = self.titleList['D38'].value
     def getInstituteName(self):
-        return self.instituteName
+        return self.titleList['D38'].value # С заглавной??? 
+    def getCode(self):
+        return self.titleList['D27'].value
+    def getProfile(self):
+        return self.titleList['D30'].value
         
       

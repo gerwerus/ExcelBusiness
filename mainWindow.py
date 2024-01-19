@@ -28,7 +28,5 @@ class MainWindow(QMainWindow):
         ln = len(self.files) 
         objects = (ExcelProccessing(i) for i in self.files) 
         self.excelTread_instance.setObjects(objects, ln)
-        self.excelTread_instance.start()  
-        # for index, obj in enumerate(objects):
-        #     print(obj.getInstituteName())
-        #     self.progressBar.setValue(int(((index + 1)/l) * 100)) 
+        self.progressBar.setValue(0)
+        self.excelTread_instance.start()
