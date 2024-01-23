@@ -1,5 +1,6 @@
 from PySide6.QtCore import QThread, QDate
 from openpyxl import load_workbook
+cellColumn = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH"] 
 class ExcelTread(QThread):
     def __init__(self, mainWindow):
         super().__init__()
@@ -19,7 +20,9 @@ class ExcelTread(QThread):
                 return
             # obj.getView()
             dt = startDate.daysTo(formDate)  
-            print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getView())          
+            # print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getView()) 
+            print(index + 1, obj.getView())          
+
             # print(dt // 365 + 1, (dt % 365) // 153) # Високосный???
             self.mainWindow.progressBar.setValue(int(((index + 1)/self.ln) * 100)) 
 class ExcelProccessing():
@@ -28,6 +31,8 @@ class ExcelProccessing():
         self.book = load_workbook(filename)
         self.titleList = self.book['Титул']
         self.practiceList = self.book['Практики']
+        self.planList = self.book['План']
+
     def getInstituteName(self):
         return self.titleList['D38'].value # С заглавной??? 
     def getCode(self):
@@ -40,34 +45,46 @@ class ExcelProccessing():
         practiceView = []
         practiceTyp = []
         practiceSem = []
+        double = 0
         for i in range(3, self.practiceList.max_row + 1):
-            view = self.practiceList['A' + str(i)].value
+            view = self.practiceList['A' + str(i)].value # Нужно добавлять current view
             typ = self.practiceList['B' + str(i)].value
             course = self.practiceList['D' + str(i)].value
             sem = self.practiceList['E' + str(i)].value
             if view:
                 if "Вид" in view:
                     practiceView.append(view[14:]) # Убирает "Вид практики: "
+                    double = 0
             if typ:
                 practiceTyp.append(typ)
+                double += 1
+                if double > 1:
+                    practiceView.append(practiceView[-1])
             if course:
                 practiceSem.append((int(course) - 1) * 2 + sem) 
         practiceList = []
-        laborCell = -1
+        zeColumn = "Неопределено"
+        nameColumn = "Неопределено"
+        hoursColumn = "Неопределено" 
+        for col in cellColumn:
+            if self.planList[col + "2"].value == "Наименование" or self.planList[col + "3"].value == "Наименование" or self.planList[col + "4"].value == "Наименование": 
+                nameColumn = col 
+            elif self.planList[col + "1"].value == "з.е." or self.planList[col + "2"].value == "з.е." or self.planList[col + "3"].value == "з.е.": # Брать экспертное или фактическое
+                zeColumn = col 
+            elif self.planList[col + "1"].value == "Итого акад.часов" or self.planList[col + "2"].value == "Итого акад.часов" or self.planList[col + "3"].value == "Итого акад.часов":
+                hoursColumn = col
+            if zeColumn != "Неопределено" and hoursColumn != "Неопределено" and nameColumn != "Неопределено":
+                break
+        else:
+            raise Exception("Не удалось распарсить колонки")   
         for i in range(len(practiceView)):
-            courseList = self.book['Курс ' + str((practiceSem[i] - 1) // 2)] # Лист нужного курса
-            j = 17
-            laborTime = "Неопределенно" # Трудоемкость ч/ЗЕ
-            if laborCell == -1: 
-                while courseList['C' + str(j)].value != "ПРАКТИКИ":
-                    j += 1
-                laborCell = j       
-            laborCell += 1                 
-            strLaborCell = str(laborCell)
-            if practiceSem[i] % 2 == 1:
-                laborTime = str(courseList["H" + strLaborCell].value) + "/" + str(courseList['AP' + strLaborCell].value)
-            else:
-                laborTime = str(courseList["AS" + strLaborCell].value) + "/" + str(courseList['CA' + strLaborCell].value)    
-            practiceList.append([practiceView[i], practiceTyp[i], practiceSem[i], laborTime])
+            startIndex = 1    
+            while self.planList[nameColumn + str(startIndex)].value != practiceTyp[i]:
+                startIndex += 1
+                if startIndex > self.planList.max_row:
+                    break
+            laborTime = str(self.planList[hoursColumn + str(startIndex)].value) + "/" + str(self.planList[zeColumn + str(startIndex)].value) 
+            # laborTime = 1
+            practiceList.append([laborTime])
         return practiceList        
       
