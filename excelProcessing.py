@@ -46,11 +46,16 @@ class ExcelProccessing():
         practiceTyp = []
         practiceSem = []
         double = 0
+        for name in cellColumn:
+            if self.practiceList[name + "1"].value == "Курс":
+                nameCourseColumn = name
+                break
+        nameSemColumn = cellColumn[cellColumn.index(nameCourseColumn) + 1]
         for i in range(3, self.practiceList.max_row + 1):
-            view = self.practiceList['A' + str(i)].value # Нужно добавлять current view
-            typ = self.practiceList['B' + str(i)].value
-            course = self.practiceList['D' + str(i)].value
-            sem = self.practiceList['E' + str(i)].value
+            view = self.practiceList["A" + str(i)].value # Нужно искать буквы!
+            typ = self.practiceList["B" + str(i)].value
+            course = self.practiceList[nameCourseColumn + str(i)].value
+            sem = self.practiceList[nameSemColumn + str(i)].value
             if view:
                 if "Вид" in view:
                     practiceView.append(view[14:]) # Убирает "Вид практики: "
