@@ -18,8 +18,8 @@ class ExcelTread(QThread):
             if startDate >= formDate:
                 return
             # obj.getView()
-            dt = startDate.daysTo(formDate)
-            print(dt, dt // 365 + 1, (dt % 365) // 153)
+            dt = startDate.daysTo(formDate)            
+            print(dt, dt // 365 + 1, (dt % 365) // 153) # Високосный???
             self.mainWindow.progressBar.setValue(int(((index + 1)/self.ln) * 100)) 
 class ExcelProccessing():
     def __init__(self, filename):
