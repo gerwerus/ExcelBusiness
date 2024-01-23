@@ -89,7 +89,18 @@ class ExcelProccessing():
                 if startIndex > self.planList.max_row:
                     break
             laborTime = str(self.planList[hoursColumn + str(startIndex)].value) + "/" + str(self.planList[zeColumn + str(startIndex)].value) 
-            # laborTime = 1
-            practiceList.append([laborTime])
+            compList = self.book['Компетенции']
+            currentCode = ""
+            currentText = ""
+            allComp = []
+            for row in range(2, compList.max_row + 1):
+                code = compList["B" + str(row)].value
+                comp = compList["D" + str(row)].value
+                if code:
+                   currentCode = code
+                   currentText = comp
+                if comp == practiceTyp[i]:
+                    allComp.append(currentCode + " - " + currentText)  
+            practiceList.append([laborTime, allComp])    
         return practiceList        
       
