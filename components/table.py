@@ -1,4 +1,5 @@
 from excelProcessing import ExcelProccessing, ExcelTread
+from script import templateScript
 from PySide6.QtCore import QDate
 from PySide6.QtWidgets import (
     QLineEdit, QPushButton, QApplication, QTextEdit,
@@ -18,9 +19,9 @@ class TableComponent(QWidget):
         self.clearButton = QPushButton("Очистить")
         self.clearButton.clicked.connect(self.clearTable)
         self.excelButton = QPushButton("Выгрузить в Excel")
-        self.clearButton.clicked.connect(self.generateWord)
+        self.excelButton.clicked.connect(self.excelUnload)
         self.generateButton = QPushButton("Сгенерировать")
-        # self.clearButton.clicked.connect(self.clearTable)
+        self.generateButton.clicked.connect(self.generateWord)
 
         layout.addWidget(self.table, 0, 0, 1, 4)
         layout.addWidget(self.generateButton, 1, 1, 1, 1)
@@ -41,4 +42,10 @@ class TableComponent(QWidget):
     def excelUnload(self):
         pass
     def generateWord(self):
-        pass
+        templates = QFileDialog.getOpenFileNames(self, filter="Word files (*.docx);; All files (*)")[0]
+        for template in templates:
+            for row in range(self.table.rowCount()):
+                data = {}
+                for ind, el in enumerate(self.header):
+                    data.update({el: self.table.item(row, ind).text()})
+                templateScript.generate(data, template)
