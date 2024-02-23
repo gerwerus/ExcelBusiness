@@ -1,5 +1,6 @@
 from PySide6.QtCore import QThread, QDate
 from openpyxl import load_workbook
+import re
 cellColumn = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH"] 
 class ExcelTread(QThread):
     def __init__(self, mainWindow):
@@ -21,7 +22,7 @@ class ExcelTread(QThread):
             # obj.getView()
             dt = startDate.daysTo(formDate)  
             # print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getView()) 
-            print(index + 1, obj.getInstituteName())          
+            print(index + 1, obj.getProfile())          
 
             # print(dt // 365 + 1, (dt % 365) // 153) # Високосный???
             self.mainWindow.progressBar.setValue(int(((index + 1)/self.ln) * 100)) 
@@ -36,6 +37,7 @@ class ExcelProccessing():
     def getInstituteName(self):
         return self.titleList['D38'].value.replace('Институт ', '') # Жесткая привязка к D38
     def getCode(self):
+        # print(re.search(r"\d\d.\d\d.\d\d \w+", "Специальность 10.05.02 Информационная безопасность телекоммуникационных систем"))
         return self.titleList['D29'].value
     def getProfile(self):
         return self.titleList['D30'].value
