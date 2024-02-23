@@ -1,7 +1,9 @@
 from PySide6.QtCore import QThread, QDate
 from openpyxl import load_workbook
 import re
-cellColumn = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH"] 
+cellColumn = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+                "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU",
+                "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD"] 
 class ExcelTread(QThread):
     def __init__(self, mainWindow):
         super().__init__()
@@ -22,7 +24,7 @@ class ExcelTread(QThread):
             # obj.getView()
             dt = startDate.daysTo(formDate)  
             # print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getView()) 
-            print(index + 1, obj.getProfile())          
+            print(index + 1, obj.getPracticeDates())          
 
             # print(dt // 365 + 1, (dt % 365) // 153) # Високосный???
             self.mainWindow.progressBar.setValue(int(((index + 1)/self.ln) * 100)) 
@@ -33,6 +35,8 @@ class ExcelProccessing():
         self.titleList = self.book['Титул']
         self.practiceList = self.book['Практики']
         self.planList = self.book['План']
+        self.graphList = self.book['График']
+
 
     def getInstituteName(self):
         return self.titleList['D38'].value.replace('Институт ', '') # Жесткая привязка к D38
@@ -48,19 +52,36 @@ class ExcelProccessing():
         practiceTyp = []
         practiceSem = []
         double = 0
-        for name in cellColumn:
-            if self.practiceList[name + "1"].value == "Курс":
-                nameCourseColumn = name
+
+        nameCourseColumn = nameSemColumn = nameViewColumn = ""
+        for i in range(1, 5):
+            for name in cellColumn:
+                if self.practiceList[name + str(i)].value == "Курс":
+                    nameCourseColumn = name
+                    continue
+                if self.practiceList[name + str(i)].value == "Сем. курса":
+                    nameSemColumn = name
+                    continue
+                if self.practiceList[name + str(i)].value == "Название практики":
+                    nameViewColumn = name
+                    continue
+            if not(nameSemColumn):
+                nameSemColumn = "no info" # Если отсутствует колонка семестра
+            if nameCourseColumn and nameSemColumn and nameViewColumn:
                 break
-        nameSemColumn = cellColumn[cellColumn.index(nameCourseColumn) + 1]
+        else:
+            raise Exception("Не удалось распарсить лист Практик")
         for i in range(3, self.practiceList.max_row + 1):
-            view = self.practiceList["A" + str(i)].value # Нужно искать буквы!
-            typ = self.practiceList["B" + str(i)].value
+            view = self.practiceList[nameViewColumn + str(i)].value
+            typ = self.practiceList[cellColumn[cellColumn.index(nameViewColumn) + 1] + str(i)].value
             course = self.practiceList[nameCourseColumn + str(i)].value
-            sem = self.practiceList[nameSemColumn + str(i)].value
+            if nameSemColumn == "no info":
+                sem = 0
+            else:
+                sem = self.practiceList[nameSemColumn + str(i)].value
             if view:
                 if "Вид" in view:
-                    practiceView.append(view[14:]) # Убирает "Вид практики: "
+                    practiceView.append(view[14:].rstrip()) # Убирает "Вид практики: "
                     double = 0
             if typ:
                 practiceTyp.append(typ)
@@ -69,7 +90,7 @@ class ExcelProccessing():
                     practiceView.append(practiceView[-1])
             if course:
                 practiceSem.append((int(course) - 1) * 2 + sem) 
-        practiceList = []
+        practiceComp = []
         zeColumn = "Неопределено"
         nameColumn = "Неопределено"
         hoursColumn = "Неопределено" 
@@ -83,14 +104,16 @@ class ExcelProccessing():
             if zeColumn != "Неопределено" and hoursColumn != "Неопределено" and nameColumn != "Неопределено":
                 break
         else:
-            raise Exception("Не удалось распарсить колонки")   
+            raise Exception("Не удалось распарсить колонки")
+        laborTime = []   
         for i in range(len(practiceView)):
             startIndex = 1    
             while self.planList[nameColumn + str(startIndex)].value != practiceTyp[i]:
                 startIndex += 1
                 if startIndex > self.planList.max_row:
                     break
-            laborTime = str(self.planList[hoursColumn + str(startIndex)].value) + "/" + str(self.planList[zeColumn + str(startIndex)].value) 
+            laborTime.append(str(self.planList[hoursColumn + str(startIndex)].value) 
+                                + "/" + str(self.planList[zeColumn + str(startIndex)].value))
             compList = self.book['Компетенции']
             currentCode = ""
             currentText = ""
@@ -102,7 +125,62 @@ class ExcelProccessing():
                    currentCode = code
                    currentText = comp
                 if comp == practiceTyp[i]:
+                    if not(currentText):
+                        currentText = "Не указано" # Файлы с пустыми компетенциями
                     allComp.append(currentCode + " - " + currentText)  
-            practiceList.append([laborTime, allComp])    
-        return practiceList        
-      
+            practiceComp.append(allComp) # practiceComp - список компетенций 
+        return zip(practiceSem, practiceView, practiceTyp, laborTime, practiceComp)
+    def getPracticeDates(self):
+        startCol = "B"
+        startRow = 4
+        diapazon = 6
+        secondDiapazon = 9
+        yearStep = 17
+        startYear = self.getDateStart()
+        yearsCounter = 0
+        for row in range(2, self.graphList.max_row):
+            val = self.graphList["A" + str(row)].value
+            if not(val): continue
+            if "учебный график" in val:
+                yearsCounter += 1
+        allDates = {}
+        for year in range(yearsCounter):
+            currentMonth = 9
+            currentYear = int(startYear) + year
+            currentStartRow = startRow + year * yearStep
+            currentDay = 0
+            practiceDates = {"У": [], "П": [], "Пд": []}
+            for cell in cellColumn[cellColumn.index(startCol):]:
+                checkNone = False
+                for row in range(currentStartRow, currentStartRow + diapazon + 1):
+                    prevDay = currentDay
+                    currentDay = self.graphList[cell + str(row)].value
+                    if not(currentDay): continue
+                    currentDay = int(currentDay)
+                    if prevDay:
+                        if prevDay > currentDay:
+                            currentMonth = (currentMonth + 1) % 13
+                            if currentMonth == 0: currentMonth = 1
+                    currentDate = QDate(currentYear, currentMonth, currentDay)
+                    # print(prevDay, currentDay, cell + str(row), currentDate)
+                    # print(currentDate)
+                    val = self.graphList[cell + str(row + secondDiapazon)].value
+                    if val in ["У", "П", "Пд"]:
+                        ln = len(practiceDates[val])
+                        if ln == 0:
+                            practiceDates[val].append(currentDate)
+                        elif ln == 1:
+                            practiceDates[val].append(currentDate)
+                            checkNone = val
+                        elif ln == 2:
+                            practiceDates[val][1] = currentDate
+                            checkNone = val
+                    elif val is not None:
+                        checkNone = False
+                    elif checkNone:
+                        practiceDates[checkNone][1] = currentDate
+                    if cell == "AB" and currentYear == 2023:
+                        print(val, currentDate)
+            allDates.update({str(currentYear): practiceDates})
+        # print(self.graphList["AU30"].value, self.graphList["AU33"].value, self.graphList["AU35"].value, )
+        return allDates
