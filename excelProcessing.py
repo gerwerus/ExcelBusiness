@@ -21,7 +21,7 @@ class ExcelTread(QThread):
             # obj.getView()
             dt = startDate.daysTo(formDate)  
             # print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getView()) 
-            print(index + 1, obj.getView())          
+            print(index + 1, obj.getInstituteName())          
 
             # print(dt // 365 + 1, (dt % 365) // 153) # Високосный???
             self.mainWindow.progressBar.setValue(int(((index + 1)/self.ln) * 100)) 
@@ -34,7 +34,7 @@ class ExcelProccessing():
         self.planList = self.book['План']
 
     def getInstituteName(self):
-        return self.titleList['D38'].value # С заглавной??? 
+        return self.titleList['D38'].value.replace('Институт ', '') # Жесткая привязка к D38
     def getCode(self):
         return self.titleList['D29'].value
     def getProfile(self):
