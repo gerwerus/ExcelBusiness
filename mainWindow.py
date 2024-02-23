@@ -1,4 +1,4 @@
-from excelProcessing import ExcelProccessing, ExcelTread
+from components import table, mainMenu
 from PySide6.QtCore import QDate
 import os
 from PySide6.QtWidgets import (
@@ -11,43 +11,23 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__()
         self.setWindowTitle("Excel Plan")
-        self.setFixedSize(600, 400)
+        self.resize(600, 400)
+        # self.setFixedSize(600, 400)
         self.files = []
         layout = QGridLayout()
-        self.getFilesButton = QPushButton("Выбрать файлы")
-        self.getFilesFromDirButton = QPushButton("Выбрать Папку")
-        self.dateEdit = QDateEdit()
-        self.dateEdit.setDate(QDate.currentDate())
-        # self.dateEdit.date()
-        self.progressBar = QProgressBar()
-        self.progressBar.setValue(0) 
-        self.getFilesButton.clicked.connect(self.getFiles)
-        self.getFilesFromDirButton.clicked.connect(self.getFilesFromDirectory)
+        # Добавление Вкладок
+        self.tabs = QTabWidget()
+        self.tabs.setTabPosition(QTabWidget.TabPosition.North)
+        
+        self.table = table.TableComponent(["Институт", "Направление", "Профиль", "Семестр", "Вид", "Тип", "Трудоёмкость", "Начало", "Окончание", "Компетенции"])
+        self.mainMenu = mainMenu.mainMenuComponent(self.callback, addLine=self.table.addLine)
 
-        layout.addWidget(QLabel("Дата формирования:"), 0, 0)
-        layout.addWidget(self.dateEdit, 0, 1)
-        layout.addWidget(self.getFilesButton, 1, 0, 1, 1)
-        layout.addWidget(self.getFilesFromDirButton, 1, 1, 1, 1)
-        layout.addWidget(self.progressBar, 2, 0, 1, 2)
+        self.tabs.addTab(self.mainMenu, "Выбор файлов")
+        self.tabs.addTab(self.table, "Данные")
+        layout.addWidget(self.tabs)
+        #
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
-        self.excelTread_instance = ExcelTread(self)
-    def getFiles(self): 
-        self.files = QFileDialog.getOpenFileNames(self, filter="Excel files (*.xls, *xlsx);; All files (*)")[0]
-        self.startTread()
-    def getFilesFromDirectory(self):
-        for top, __, files in os.walk(str(QFileDialog.getExistingDirectory(self, "Select Directory"))):
-            for name in files:
-                if name.endswith(".xls") or name.endswith(".xlsx"):
-                    self.files.append(os.path.join(top, name))
-        # print(self.files, self.files.__len__())
-        self.files = list(set(self.files))
-        self.startTread()
-    def startTread(self):
-        ln = len(self.files)
-        objects = (ExcelProccessing(i) for i in self.files) 
-        self.excelTread_instance.setObjects(objects, ln)
-        self.progressBar.setValue(0)
-        self.excelTread_instance.start()
-                
+    def callback(self, files):
+        self.files = files       

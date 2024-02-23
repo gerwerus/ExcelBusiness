@@ -1,13 +1,12 @@
 from PySide6.QtCore import QThread, QDate
 from openpyxl import load_workbook
-import re
 cellColumn = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
                 "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU",
                 "AV", "AW", "AX", "AY", "AZ", "BA", "BB", "BC", "BD"] 
 class ExcelTread(QThread):
-    def __init__(self, mainWindow):
+    def __init__(self, mainMenu):
         super().__init__()
-        self.mainWindow = mainWindow
+        self.mainMenu = mainMenu
         self.objects = 0
         self.ln = 0
     def setObjects(self, objects, ln=0):
@@ -15,19 +14,34 @@ class ExcelTread(QThread):
         self.ln = ln
 
     def run(self):
-        formDate = self.mainWindow.dateEdit.date()        
+        formDate = self.mainMenu.dateEdit.date()        
         for index, obj in enumerate(self.objects):
             # print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getDateStart())
             startDate =  QDate(int(obj.getDateStart()), 9, 1) # год из таблицы, месяц 09, день 01
-            if startDate >= formDate:
-                return
-            # obj.getView()
+            if startDate >= formDate: return
             dt = startDate.daysTo(formDate)  
-            # print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getView()) 
-            print(index + 1, obj.getPracticeDates())          
-
-            # print(dt // 365 + 1, (dt % 365) // 153) # Високосный???
-            self.mainWindow.progressBar.setValue(int(((index + 1)/self.ln) * 100)) 
+            
+            view = list(obj.getView())
+            dates = obj.getPracticeDates()
+            for ind, el in enumerate(view):
+                currentStartYear = startDate.year() + (el[0] + 1)//2 - 1
+                if el[1] == "Научно-исследовательская работа":
+                    continue
+                if QDate(currentStartYear, 9, 1) <= formDate <= QDate(currentStartYear + 1, 8, 31): # Берем практики за год
+                    currentDates = dates.get(str(currentStartYear), None)
+                    print(currentDates, el[0], el[1])
+                    currentPracticeDate = ["", ""]
+                    if currentDates:
+                        currentPracticeDate = currentDates[ExcelProccessing.translateVal(el[1])]
+                    # print(currentPracticeDate[0].toString("yyyy.MM.dd"))
+                    # print(index + 1, obj.getInstituteName(), obj.getCode(), obj.getProfile(), el[0], el[1], el[2], el[3], 1, 1, *el[4])          
+                    self.mainMenu.addLine([obj.getInstituteName(), obj.getCode(), obj.getProfile(), 
+                                            el[0], el[1], el[2], el[3],
+                                            currentPracticeDate[0].toString("yyyy.MM.dd"), 
+                                            currentPracticeDate[1].toString("yyyy.MM.dd"), *el[4]
+                                        ])
+            self.mainMenu.progressBar.setValue(int(((index + 1)/self.ln) * 100))
+            
 class ExcelProccessing():
     def __init__(self, filename):
         self.filename = filename
@@ -41,7 +55,6 @@ class ExcelProccessing():
     def getInstituteName(self):
         return self.titleList['D38'].value.replace('Институт ', '') # Жесткая привязка к D38
     def getCode(self):
-        # print(re.search(r"\d\d.\d\d.\d\d \w+", "Специальность 10.05.02 Информационная безопасность телекоммуникационных систем"))
         return self.titleList['D29'].value
     def getProfile(self):
         return self.titleList['D30'].value
@@ -76,7 +89,7 @@ class ExcelProccessing():
             typ = self.practiceList[cellColumn[cellColumn.index(nameViewColumn) + 1] + str(i)].value
             course = self.practiceList[nameCourseColumn + str(i)].value
             if nameSemColumn == "no info":
-                sem = 0
+                sem = 2
             else:
                 sem = self.practiceList[nameSemColumn + str(i)].value
             if view:
@@ -162,8 +175,6 @@ class ExcelProccessing():
                             currentMonth = (currentMonth + 1) % 13
                             if currentMonth == 0: currentMonth = 1
                     currentDate = QDate(currentYear, currentMonth, currentDay)
-                    # print(prevDay, currentDay, cell + str(row), currentDate)
-                    # print(currentDate)
                     val = self.graphList[cell + str(row + secondDiapazon)].value
                     if val in ["У", "П", "Пд"]:
                         ln = len(practiceDates[val])
@@ -179,8 +190,15 @@ class ExcelProccessing():
                         checkNone = False
                     elif checkNone:
                         practiceDates[checkNone][1] = currentDate
-                    if cell == "AB" and currentYear == 2023:
-                        print(val, currentDate)
+                    # if cell == "AB" and currentYear == 2023:
+                    #     print(val, currentDate)
             allDates.update({str(currentYear): practiceDates})
-        # print(self.graphList["AU30"].value, self.graphList["AU33"].value, self.graphList["AU35"].value, )
         return allDates
+    @staticmethod
+    def translateVal(val):
+        if val == "Учебная практика":
+            return "У"
+        if val == "Производственная практика":
+            return "П"
+        if val == "Преддипломная практика":
+            return "Пд"
