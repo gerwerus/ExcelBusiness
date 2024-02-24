@@ -15,8 +15,8 @@ class WordThread(QThread):
 
     def run(self):
         for index, obj in enumerate(self.objects):
-            obj.generate()
-            self.mainMenu.progressBar.setValue(int(((index + 1)/self.ln) * 100))
+            obj.generate(index)
+            self.parent.progressBar.setValue(int(((index + 1)/self.ln) * 100))
             
 
 
@@ -27,8 +27,8 @@ class WordProccesing():
         self.destination = destination
     def setDestination(self, destination):
         self.destination = destination
-    def generate(self):
+    def generate(self, index):
         doc = DocxTemplate(self.template)
         context = {key: self.data[key] for key in self.data}
         doc.render(context)
-        doc.save(os.path.join(self.destination, self.data["Направление"] + "_" + self.data["Тип"] + ".docx"))
+        doc.save(os.path.join(self.destination, self.data["Направление"] + "_" + self.data["Тип"] + "_" + str(index) + ".docx"))
