@@ -57,7 +57,10 @@ class ExcelProccessing():
     def getCode(self):
         return self.titleList['D29'].value
     def getProfile(self):
-        return self.titleList['D30'].value
+        val = self.titleList['D30'].value
+        if val: 
+            return val
+        return "Отсутсвует"
     def getDateStart(self):
         return self.titleList['W40'].value
     def getView(self):
@@ -176,7 +179,8 @@ class ExcelProccessing():
                             if currentMonth == 0: currentMonth = 1
                     currentDate = QDate(currentYear, currentMonth, currentDay)
                     val = self.graphList[cell + str(row + secondDiapazon)].value
-                    if val in ["У", "П", "Пд"]:
+                    if val in ["У", "П", "Пд", "П Н"]:
+                        if val == "П Н": val = "П"
                         ln = len(practiceDates[val])
                         if ln == 0:
                             practiceDates[val].append(currentDate)
