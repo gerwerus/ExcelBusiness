@@ -41,7 +41,8 @@ class TableComponent(QWidget):
         row = self.table.rowCount()
         self.table.insertRow(row)
         for index, el in enumerate(line):
-            self.table.setItem(row, index, QTableWidgetItem(str(el)))
+            val = str(el).rstrip().lstrip().replace('"', "'")
+            self.table.setItem(row, index, QTableWidgetItem(val))
     def clearTable(self):
         while (self.table.rowCount() > 0):
             self.table.removeRow(0)

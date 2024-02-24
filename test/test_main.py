@@ -31,7 +31,7 @@ def test_excel_instance(instance):
                     assert qdate.year() == int(date)
                     assert 1 <= qdate.month() <= 12
                     assert 1 <= qdate.day() <= 31
-
+    # проверить связь практик и графиков!
             
         
 

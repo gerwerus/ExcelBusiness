@@ -33,12 +33,10 @@ class ExcelTread(QThread):
                     currentPracticeDate = ["", ""]
                     if currentDates:
                         currentPracticeDate = currentDates[ExcelProccessing.translateVal(el[1])]
-                    # print(currentPracticeDate[0].toString("yyyy.MM.dd"))
-                    # print(index + 1, obj.getInstituteName(), obj.getCode(), obj.getProfile(), el[0], el[1], el[2], el[3], 1, 1, *el[4])          
                     self.mainMenu.addLine([obj.getInstituteName(), obj.getCode(), obj.getProfile(), 
                                             el[0], el[1], el[2], el[3],
-                                            currentPracticeDate[0].toString("yyyy.MM.dd"), 
-                                            currentPracticeDate[1].toString("yyyy.MM.dd"), *el[4]
+                                            currentPracticeDate[0].toString("dd.MM.yyyy"), 
+                                            currentPracticeDate[1].toString("dd.MM.yyyy"), *el[4]
                                         ])
             self.mainMenu.progressBar.setValue(int(((index + 1)/self.ln) * 100))
             
@@ -147,6 +145,7 @@ class ExcelProccessing():
             practiceComp.append(allComp) # practiceComp - список компетенций 
         return zip(practiceSem, practiceView, practiceTyp, laborTime, practiceComp)
     def getPracticeDates(self):
+        print(self.filename)
         startCol = "B"
         startRow = 4
         diapazon = 6
