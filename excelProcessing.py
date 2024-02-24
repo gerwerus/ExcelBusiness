@@ -168,7 +168,7 @@ class ExcelProccessing():
             practiceDates = {"У": [], "П": [], "Пд": []}
             for cell in cellColumn[cellColumn.index(startCol):]:
                 checkNone = False
-                for row in range(currentStartRow, currentStartRow + diapazon + 1):
+                for row in range(currentStartRow, currentStartRow + diapazon): # Воскресенье не берем
                     prevDay = currentDay
                     currentDay = self.graphList[cell + str(row)].value
                     if not(currentDay): continue
@@ -178,7 +178,10 @@ class ExcelProccessing():
                             currentMonth = (currentMonth + 1) % 13
                             if currentMonth == 0: currentMonth = 1
                     currentDate = QDate(currentYear, currentMonth, currentDay)
-                    val = self.graphList[cell + str(row + secondDiapazon)].value
+                    valCell = self.graphList[cell + str(row + secondDiapazon)] 
+                    val = valCell.value
+                    if valCell.fill.start_color.index == 16:
+                        val = "У"
                     if val in ["У", "П", "Пд", "П Н"]:
                         if val == "П Н": val = "П"
                         ln = len(practiceDates[val])
