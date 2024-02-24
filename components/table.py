@@ -1,11 +1,11 @@
-from excelProcessing import ExcelProccessing, ExcelTread
+from script.generateProccesing import WordThread, WordProccesing
 from script import templateScript
 from PySide6.QtCore import QDate
 from PySide6.QtWidgets import (
     QLineEdit, QPushButton, QApplication, QTextEdit,
     QDateEdit, QDialog, QGroupBox, QMainWindow, QRadioButton,
     QFileDialog, QWidget, QDateEdit, QLabel, QGridLayout,
-    QDialogButtonBox, QMessageBox, QTabWidget, QTableWidgetItem, QTableWidget
+    QDialogButtonBox, QMessageBox, QProgressBar, QTableWidgetItem, QTableWidget
     )
 class TableComponent(QWidget):
     def __init__(self, header: list[str]):
@@ -23,12 +23,18 @@ class TableComponent(QWidget):
         self.generateButton = QPushButton("Сгенерировать")
         self.generateButton.clicked.connect(self.generateWord)
 
+        self.progressBar = QProgressBar()
+        self.progressBar.setValue(0) 
+
         layout.addWidget(self.table, 0, 0, 1, 4)
+        layout.addWidget(self.progressBar, 1, 0, 1, 1)
         layout.addWidget(self.generateButton, 1, 1, 1, 1)
         layout.addWidget(self.excelButton, 1, 2, 1, 1)
         layout.addWidget(self.clearButton, 1, 3, 1, 1)
 
         self.setLayout(layout)
+
+        self.wordThread_instance = WordThread(self)
     def addLine(self, line: list[str]):
         # if len(line) > len(self.header):
         #     raise Exception("Невозможно вставить в таблицу")
@@ -43,9 +49,15 @@ class TableComponent(QWidget):
         pass
     def generateWord(self):
         templates = QFileDialog.getOpenFileNames(self, filter="Word files (*.docx);; All files (*)")[0]
-        for template in templates:
-            for row in range(self.table.rowCount()):
-                data = {}
-                for ind, el in enumerate(self.header):
-                    data.update({el: self.table.item(row, ind).text()})
-                templateScript.generate(data, template)
+        ln = len(templates) * self.table.rowCount()
+        def getObjects():
+            for template in templates:
+                for row in range(self.table.rowCount()):
+                    data = {}
+                    for ind, el in enumerate(self.header):
+                        data.update({el: self.table.item(row, ind).text()})
+                    yield WordProccesing(data, template)
+        objects = getObjects()
+        self.wordThread_instance.setObjects(objects, ln)
+        self.progressBar.setValue(0)
+        self.wordThread_instance.start()  
