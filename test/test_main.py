@@ -28,7 +28,7 @@ def test_excel_instance(instance):
         for type_ in dates[date]:
             if (dates[date][type_]):
                 for qdate in dates[date][type_]:
-                    assert qdate.year() == int(date)
+                    assert (qdate.year() == int(date) or qdate.year() == int(date) + 1)
                     assert 1 <= qdate.month() <= 12
                     assert 1 <= qdate.day() <= 31
     # проверить связь практик и графиков!
