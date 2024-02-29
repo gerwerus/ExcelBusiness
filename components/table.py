@@ -48,7 +48,8 @@ class TableComponent(QWidget):
     def excelUnload(self):
         pass
     def generateWord(self):
-        templates = QFileDialog.getOpenFileNames(self, filter="Word files (*.docx);; All files (*)")[0]
+        templates = QFileDialog.getOpenFileNames(self, filter="Шаблоны (*.docx);; All files (*)")[0]
+        destination =QFileDialog.getExistingDirectory(self, "Папка назначения")
         ln = len(templates) * self.table.rowCount()
         def getObjects():
             for template in templates:
@@ -56,7 +57,7 @@ class TableComponent(QWidget):
                     data = {}
                     for ind, el in enumerate(self.header):
                         data.update({el: self.table.item(row, ind).text()})
-                    yield WordProccesing(data, template)
+                    yield WordProccesing(data, template, destination)
         objects = getObjects()
         self.wordThread_instance.setObjects(objects, ln)
         self.progressBar.setValue(0)
