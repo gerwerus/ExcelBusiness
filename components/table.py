@@ -1,5 +1,4 @@
 from script.generateProccesing import WordThread, WordProccesing
-from script import templateScript
 from PySide6.QtCore import QDate
 from PySide6.QtWidgets import (
     QLineEdit, QPushButton, QApplication, QTextEdit,

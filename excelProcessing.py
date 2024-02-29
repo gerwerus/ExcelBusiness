@@ -175,7 +175,9 @@ class ExcelProccessing():
                     if prevDay:
                         if prevDay > currentDay:
                             currentMonth = (currentMonth + 1) % 13
-                            if currentMonth == 0: currentMonth = 1
+                            if currentMonth == 0: 
+                                currentMonth = 1
+                                currentYear += 1
                     currentDate = QDate(currentYear, currentMonth, currentDay)
                     valCell = self.graphList[cell + str(row + secondDiapazon)] 
                     val = valCell.value
@@ -198,7 +200,7 @@ class ExcelProccessing():
                         practiceDates[checkNone][1] = currentDate
                     # if cell == "AB" and currentYear == 2023:
                     #     print(val, currentDate)
-            allDates.update({str(currentYear): practiceDates})
+            allDates.update({str(int(startYear) + year): practiceDates})
         return allDates
     @staticmethod
     def translateVal(val):
