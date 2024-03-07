@@ -2,11 +2,28 @@ from components import table, mainMenu
 from PySide6.QtCore import QDate
 import os
 from PySide6.QtWidgets import (
-    QLineEdit, QPushButton, QApplication, QTextEdit,
-    QDateEdit, QDialog, QGroupBox, QMainWindow, QRadioButton,
-    QFileDialog, QWidget, QDateEdit, QLabel, QGridLayout,
-    QDialogButtonBox, QMessageBox, QTabWidget, QScrollArea, QProgressBar
-    )
+    QLineEdit,
+    QPushButton,
+    QApplication,
+    QTextEdit,
+    QDateEdit,
+    QDialog,
+    QGroupBox,
+    QMainWindow,
+    QRadioButton,
+    QFileDialog,
+    QWidget,
+    QDateEdit,
+    QLabel,
+    QGridLayout,
+    QDialogButtonBox,
+    QMessageBox,
+    QTabWidget,
+    QScrollArea,
+    QProgressBar,
+)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__()
@@ -18,9 +35,24 @@ class MainWindow(QMainWindow):
         # Добавление Вкладок
         self.tabs = QTabWidget()
         self.tabs.setTabPosition(QTabWidget.TabPosition.North)
-        
-        self.table = table.TableComponent(["Институт", "Направление", "Профиль", "Семестр", "Вид", "Тип", "Трудоёмкость", "Начало", "Окончание", "Компетенции"])
-        self.mainMenu = mainMenu.mainMenuComponent(self.callback, addLine=self.table.addLine)
+
+        self.table = table.TableComponent(
+            [
+                "Институт",
+                "Направление",
+                "Профиль",
+                "Семестр",
+                "Вид",
+                "Тип",
+                "Трудоёмкость",
+                "Начало",
+                "Окончание",
+                "Компетенции",
+            ]
+        )
+        self.mainMenu = mainMenu.mainMenuComponent(
+            self.callback, addLine=self.table.addLine
+        )
 
         self.tabs.addTab(self.mainMenu, "Выбор файлов")
         self.tabs.addTab(self.table, "Данные")
@@ -29,5 +61,6 @@ class MainWindow(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+
     def callback(self, files):
-        self.files = files       
+        self.files = files
