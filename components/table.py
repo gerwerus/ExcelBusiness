@@ -72,7 +72,11 @@ class TableComponent(QWidget):
         templates = QFileDialog.getOpenFileNames(
             self, filter="Шаблоны (*.docx);; All files (*)"
         )[0]
+        if not (templates):
+            return
         destination = QFileDialog.getExistingDirectory(self, "Папка назначения")
+        if not (destination):
+            return
         ln = len(templates) * self.table.rowCount()
 
         def getObjects():
@@ -87,3 +91,4 @@ class TableComponent(QWidget):
         self.wordThread_instance.setObjects(objects, ln)
         self.progressBar.setValue(0)
         self.wordThread_instance.start()
+        self.generateButton.setDisabled(self.wordThread_instance.isRunning())

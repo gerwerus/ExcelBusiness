@@ -19,6 +19,7 @@ class WordThread(QThread):
         for index, obj in enumerate(self.objects):
             obj.generate(index)
             self.parent.progressBar.setValue(int(((index + 1) / self.ln) * 100))
+        self.parent.generateButton.setEnabled(True)
 
 
 class WordProccesing:
@@ -39,7 +40,6 @@ class WordProccesing:
         doc.save(
             os.path.join(
                 self.destination,
-                "Институт " + self.data["Институт"],
-                self.templateFilename,
+                str(index) + self.templateFilename,
             )
         )
