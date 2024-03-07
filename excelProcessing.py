@@ -1,64 +1,7 @@
 from PySide6.QtCore import QThread, QDate
 from openpyxl import load_workbook
 
-cellColumn = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
-    "AA",
-    "AB",
-    "AC",
-    "AD",
-    "AE",
-    "AF",
-    "AG",
-    "AH",
-    "AI",
-    "AJ",
-    "AK",
-    "AL",
-    "AM",
-    "AN",
-    "AO",
-    "AP",
-    "AQ",
-    "AR",
-    "AS",
-    "AT",
-    "AU",
-    "AV",
-    "AW",
-    "AX",
-    "AY",
-    "AZ",
-    "BA",
-    "BB",
-    "BC",
-    "BD",
-]
+from consts import cellColumn
 
 
 class ExcelTread(QThread):
@@ -117,6 +60,8 @@ class ExcelTread(QThread):
                     )
             obj.book.close()
             self.mainMenu.progressBar.setValue(int(((index + 1) / self.ln) * 100))
+        self.mainMenu.getFilesButton.setEnabled(True)
+        self.mainMenu.getFilesFromDirButton.setEnabled(True)
 
 
 class ExcelProccessing:
