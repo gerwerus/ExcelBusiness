@@ -115,6 +115,7 @@ class ExcelTread(QThread):
                             *el[4],
                         ]
                     )
+            obj.book.close()
             self.mainMenu.progressBar.setValue(int(((index + 1) / self.ln) * 100))
 
 

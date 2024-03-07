@@ -8,7 +8,9 @@ files_data = getFilesData()
 
 @pytest.fixture(params=files_data)
 def instance(request):
-    return ExcelProccessing(request.param)
+    excel = ExcelProccessing(request.param)
+    yield excel
+    excel.book.close()
 
 
 def test_excel_instance(instance):
