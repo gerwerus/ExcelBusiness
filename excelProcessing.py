@@ -1,3 +1,4 @@
+from typing import Iterable
 from PySide6.QtCore import QThread, QDate
 from openpyxl import load_workbook
 
@@ -11,7 +12,7 @@ class ExcelTread(QThread):
         self.objects = 0
         self.ln = 0
 
-    def setObjects(self, objects, ln=0):
+    def setObjects(self, objects: Iterable, ln=0):
         self.objects = objects
         self.ln = ln
 
@@ -73,24 +74,24 @@ class ExcelProccessing:
         self.planList = self.book["План"]
         self.graphList = self.book["График"]
 
-    def getInstituteName(self):
+    def getInstituteName(self) -> str:
         return self.titleList["D38"].value.replace(
             "Институт ", ""
         )  # Жесткая привязка к D38
 
-    def getCode(self):
+    def getCode(self) -> str:
         return self.titleList["D29"].value
 
-    def getProfile(self):
+    def getProfile(self) -> str:
         val = self.titleList["D30"].value
         if val:
             return val
         return "Отсутсвует"
 
-    def getDateStart(self):
+    def getDateStart(self) -> str:
         return self.titleList["W40"].value
 
-    def getView(self):
+    def getView(self) -> zip:
         practiceView = []
         practiceTyp = []
         practiceSem = []
@@ -195,7 +196,7 @@ class ExcelProccessing:
             practiceComp.append(allComp)  # practiceComp - список компетенций
         return zip(practiceSem, practiceView, practiceTyp, laborTime, practiceComp)
 
-    def getPracticeDates(self):
+    def getPracticeDates(self) -> dict:
         print(self.filename)
         startCol = "B"
         startRow = 4
