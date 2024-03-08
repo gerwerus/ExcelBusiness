@@ -1,19 +1,13 @@
-import pytest
-from excelProcessing import ExcelProccessing
 import re
-from getFilesData import getFilesData
 
-files_data = getFilesData()
-
-
-@pytest.fixture(params=files_data)
-def instance(request):
-    excel = ExcelProccessing(request.param)
-    yield excel
-    excel.book.close()
+from conftest import (
+    instance,
+    valid_institute_name as validInstituteName,
+    valid_view_name as validViewName,
+)
 
 
-def test_excel_instance(instance):
+def test_excel_instance(instance, validInstituteName, validViewName):
     validInstituteName = [
         "информатики и вычислительной техники",
         "центр подготовки научных кадров",
