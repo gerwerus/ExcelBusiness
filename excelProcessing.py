@@ -260,10 +260,11 @@ class ExcelProccessing:
         return allDates
 
     @staticmethod
-    def translateVal(val):
+    def translateVal(val: str) -> str:
         if val == "Учебная практика":
             return "У"
         if val == "Производственная практика":
             return "П"
         if val == "Преддипломная практика":
             return "Пд"
+        raise ValueError(f"{val} is not Practice type!")

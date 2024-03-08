@@ -8,19 +8,6 @@ from conftest import (
 
 
 def test_excel_instance(instance, validInstituteName, validViewName):
-    validInstituteName = [
-        "информатики и вычислительной техники",
-        "центр подготовки научных кадров",
-        "безопасности",
-        "телекоммуникаций",
-        "мобильной радиосвязи и мультимедиа",
-    ]
-    validViewName = [
-        "учебная практика",
-        "производственная практика",
-        "преддипломная практика",
-        "научно-исследовательская работа",
-    ]
     assert instance.getInstituteName().lower() in validInstituteName
     assert bool(re.search(r"\d+.\d+.\d+", instance.getCode()))
     assert bool(re.search(r"\w+", instance.getProfile()))
@@ -41,4 +28,3 @@ def test_excel_instance(instance, validInstituteName, validViewName):
                     assert qdate.year() == int(date) or qdate.year() == int(date) + 1
                     assert 1 <= qdate.month() <= 12
                     assert 1 <= qdate.day() <= 31
-    # проверить связь практик и графиков!
