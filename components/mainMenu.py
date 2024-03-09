@@ -1,5 +1,7 @@
 from excelProcessing import ExcelProccessing, ExcelTread
 from components import table
+from components.mixins import ProgressChangeMixin
+
 from PySide6.QtCore import QDate, Slot, Signal
 import os
 from PySide6.QtWidgets import (
@@ -25,9 +27,7 @@ from PySide6.QtWidgets import (
 )
 
 
-class mainMenuComponent(QWidget):
-    changeProgressSignal = Signal(float)
-
+class mainMenuComponent(QWidget, ProgressChangeMixin):
     def __init__(self, callback, *args, **kwargs):
         super(mainMenuComponent, self).__init__()
         self.excelTread_instance = ExcelTread(self)
@@ -56,10 +56,6 @@ class mainMenuComponent(QWidget):
         layout.addWidget(self.progressBar, 2, 0, 1, 2)
 
         self.setLayout(layout)
-
-    @Slot(float)
-    def changeProgressSlot(self, percentage):
-        self.progressBar.setValue(percentage)
 
     def getFiles(self):
         self.files = QFileDialog.getOpenFileNames(

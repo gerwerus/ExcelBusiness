@@ -1,4 +1,6 @@
 from script.generateProccesing import WordThread, WordProccesing
+from components.mixins import ProgressChangeMixin
+
 from PySide6.QtCore import QDate
 from PySide6.QtWidgets import (
     QLineEdit,
@@ -23,7 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 
-class TableComponent(QWidget):
+class TableComponent(QWidget, ProgressChangeMixin):
     def __init__(self, header: list[str]):
         super(TableComponent, self).__init__()
         layout = QGridLayout()
@@ -41,6 +43,7 @@ class TableComponent(QWidget):
 
         self.progressBar = QProgressBar()
         self.progressBar.setValue(0)
+        self.changeProgressSignal[float].connect(self.changeProgressSlot)
 
         layout.addWidget(self.table, 0, 0, 1, 4)
         layout.addWidget(self.progressBar, 1, 0, 1, 1)
