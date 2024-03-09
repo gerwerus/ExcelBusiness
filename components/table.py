@@ -73,7 +73,7 @@ class TableComponent(QWidget, ProgressChangeMixin):
 
     def generateWord(self):
         templates = QFileDialog.getOpenFileNames(
-            self, filter="Шаблоны (*.docx);; All files (*)"
+            self, filter="Шаблоны (*.docx);; All files (*)", caption="Выберите шаблоны"
         )[0]
         if not (templates):
             return

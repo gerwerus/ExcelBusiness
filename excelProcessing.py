@@ -17,53 +17,56 @@ class ExcelTread(QThread):
         self.ln = ln
 
     def run(self):
-        formDate = self.mainMenu.dateEdit.date()
-        for index, obj in enumerate(self.objects):
-            # print(obj.getInstituteName(), obj.getCode(), obj.getProfile(), obj.getDateStart())
-            startDate = QDate(
-                int(obj.getDateStart()), 9, 1
-            )  # год из таблицы, месяц 09, день 01
-            if startDate >= formDate:
-                return
-            dt = startDate.daysTo(formDate)
+        try:
+            formDate: QDate = self.mainMenu.dateEdit.date()
+            for index, obj in enumerate(self.objects):
+                startDate = QDate(
+                    int(obj.getDateStart()), 9, 1
+                )  # год из таблицы, месяц 09, день 01
+                if startDate >= formDate:
+                    return
+                dt = startDate.daysTo(formDate)
 
-            view = list(obj.getView())
-            dates = obj.getPracticeDates()
-            for ind, el in enumerate(view):
-                currentStartYear = startDate.year() + (el[0] + 1) // 2 - 1
-                if el[1] == "Научно-исследовательская работа":
-                    continue
-                if (
-                    QDate(currentStartYear, 9, 1)
-                    <= formDate
-                    <= QDate(currentStartYear + 1, 8, 31)
-                ):  # Берем практики за год
-                    currentDates = dates.get(str(currentStartYear), None)
-                    print(currentDates, el[0], el[1])
-                    currentPracticeDate = ["", ""]
-                    if currentDates:
-                        currentPracticeDate = currentDates[
-                            ExcelProccessing.translateVal(el[1])
-                        ]
-                    self.mainMenu.addLine(
-                        [
-                            obj.getInstituteName(),
-                            obj.getCode(),
-                            obj.getProfile(),
-                            el[0],
-                            el[1],
-                            el[2],
-                            el[3],
-                            currentPracticeDate[0].toString("dd.MM.yyyy"),
-                            currentPracticeDate[1].toString("dd.MM.yyyy"),
-                            *el[4],
-                        ]
-                    )
-            obj.book.close()
-            # self.mainMenu.progressBar.setValue(int(((index + 1) / self.ln) * 100))
-            self.mainMenu.changeProgressSignal.emit(int(((index + 1) / self.ln) * 100))
-        self.mainMenu.getFilesButton.setEnabled(True)
-        self.mainMenu.getFilesFromDirButton.setEnabled(True)
+                view = list(obj.getView())
+                dates = obj.getPracticeDates()
+                for ind, el in enumerate(view):
+                    currentStartYear = startDate.year() + (el[0] + 1) // 2 - 1
+                    if el[1] == "Научно-исследовательская работа":
+                        continue
+                    if (
+                        QDate(currentStartYear, 9, 1)
+                        <= formDate
+                        <= QDate(currentStartYear + 1, 8, 31)
+                    ):  # Берем практики за год
+                        currentDates = dates.get(str(currentStartYear), None)
+                        print(currentDates, el[0], el[1])
+                        currentPracticeDate = ["", ""]
+                        if currentDates:
+                            currentPracticeDate = currentDates[
+                                ExcelProccessing.translateVal(el[1])
+                            ]
+                        self.mainMenu.addLine(
+                            [
+                                obj.getInstituteName(),
+                                obj.getCode(),
+                                obj.getProfile(),
+                                el[0],
+                                el[1],
+                                el[2],
+                                el[3],
+                                currentPracticeDate[0].toString("dd.MM.yyyy"),
+                                currentPracticeDate[1].toString("dd.MM.yyyy"),
+                                "; ".join(el[4]),
+                                str(formDate.year()),
+                            ]
+                        )
+                obj.book.close()
+                self.mainMenu.changeProgressSignal.emit(
+                    int(((index + 1) / self.ln) * 100)
+                )
+        finally:
+            self.mainMenu.getFilesButton.setEnabled(True)
+            self.mainMenu.getFilesFromDirButton.setEnabled(True)
 
 
 class ExcelProccessing:

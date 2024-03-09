@@ -1,5 +1,4 @@
 from excelProcessing import ExcelProccessing, ExcelTread
-from components import table
 from components.mixins import ProgressChangeMixin
 
 from PySide6.QtCore import QDate, Slot, Signal

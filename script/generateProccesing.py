@@ -1,5 +1,6 @@
 from PySide6.QtCore import QThread
 from docxtpl import DocxTemplate
+import re
 import os
 
 
@@ -16,10 +17,14 @@ class WordThread(QThread):
 
     def run(self):
         # Создание иерархии
-        for index, obj in enumerate(self.objects):
-            obj.generate(index)
-            self.parent.changeProgressSignal.emit(int(((index + 1) / self.ln) * 100))
-        self.parent.generateButton.setEnabled(True)
+        try:
+            for index, obj in enumerate(self.objects):
+                obj.generate()
+                self.parent.changeProgressSignal.emit(
+                    int(((index + 1) / self.ln) * 100)
+                )
+        finally:
+            self.parent.generateButton.setEnabled(True)
 
 
 class WordProccesing:
@@ -32,14 +37,68 @@ class WordProccesing:
     def setDestination(self, destination):
         self.destination = destination
 
-    def generate(self, index):
+    def _makeDir(self):
+        path0 = self.templateFilename.split(".")[0]
+        path1 = f"{self.data['Направление'].split(' ')[0]}_{self.data['Год выгрузки']}"
+        path2 = re.sub(r"[^\w\s]+", "", self.data["Профиль"])
+        path3 = str((int(self.data["Семестр"]) + 1) // 2)
+
+        try:
+            os.mkdir(
+                os.path.join(
+                    self.destination,
+                    path0,
+                )
+            )
+        except FileExistsError:
+            pass
+
+        try:
+            os.mkdir(
+                os.path.join(
+                    self.destination,
+                    path0,
+                    path1,
+                )
+            )
+        except FileExistsError:
+            pass
+
+        try:
+            os.mkdir(
+                os.path.join(
+                    self.destination,
+                    path0,
+                    path1,
+                    path2,
+                )
+            )
+        except FileExistsError:
+            pass
+
+        finalPath = os.path.join(
+            self.destination,
+            path0,
+            path1,
+            path2,
+            path3,
+        )
+        try:
+            os.mkdir(finalPath)
+        except FileExistsError:
+            pass
+
+        return finalPath
+
+    def generate(self):
         doc = DocxTemplate(self.template)
         context = {key: self.data[key] for key in self.data}
         doc.render(context)
-        course = (int(self.data["Семестр"]) + 1) // 2
+        course = str((int(self.data["Семестр"]) + 1) // 2)
+        profile = re.sub(r"[^\w\s]+", "", self.data["Профиль"])
         doc.save(
             os.path.join(
-                self.destination,
-                str(index) + self.templateFilename,
+                self._makeDir(),
+                f"{self.data['Направление'].split(' ')[0]}_{profile}_{course}_{self.data['Вид']}.{self.templateFilename.split('.')[1]}",
             )
         )

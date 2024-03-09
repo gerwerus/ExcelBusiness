@@ -48,6 +48,7 @@ class MainWindow(QMainWindow):
                 "Начало",
                 "Окончание",
                 "Компетенции",
+                "Год выгрузки",
             ]
         )
         self.mainMenu = mainMenu.mainMenuComponent(
