@@ -1,6 +1,6 @@
 from excelProcessing import ExcelProccessing, ExcelTread
 from components import table
-from PySide6.QtCore import QDate
+from PySide6.QtCore import QDate, Slot, Signal
 import os
 from PySide6.QtWidgets import (
     QLineEdit,
@@ -26,6 +26,8 @@ from PySide6.QtWidgets import (
 
 
 class mainMenuComponent(QWidget):
+    changeProgressSignal = Signal(float)
+
     def __init__(self, callback, *args, **kwargs):
         super(mainMenuComponent, self).__init__()
         self.excelTread_instance = ExcelTread(self)
@@ -42,6 +44,8 @@ class mainMenuComponent(QWidget):
         # self.dateEdit.date()
         self.progressBar = QProgressBar()
         self.progressBar.setValue(0)
+        self.changeProgressSignal[float].connect(self.changeProgressSlot)
+
         self.getFilesButton.clicked.connect(self.getFiles)
         self.getFilesFromDirButton.clicked.connect(self.getFilesFromDirectory)
 
@@ -52,6 +56,10 @@ class mainMenuComponent(QWidget):
         layout.addWidget(self.progressBar, 2, 0, 1, 2)
 
         self.setLayout(layout)
+
+    @Slot(float)
+    def changeProgressSlot(self, percentage):
+        self.progressBar.setValue(percentage)
 
     def getFiles(self):
         self.files = QFileDialog.getOpenFileNames(

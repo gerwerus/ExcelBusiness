@@ -60,7 +60,8 @@ class ExcelTread(QThread):
                         ]
                     )
             obj.book.close()
-            self.mainMenu.progressBar.setValue(int(((index + 1) / self.ln) * 100))
+            # self.mainMenu.progressBar.setValue(int(((index + 1) / self.ln) * 100))
+            self.mainMenu.changeProgressSignal.emit(int(((index + 1) / self.ln) * 100))
         self.mainMenu.getFilesButton.setEnabled(True)
         self.mainMenu.getFilesFromDirButton.setEnabled(True)
 
