@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
         )
         self.mainMenu = mainMenu.mainMenuComponent(
             self.callback, addLine=self.table.addLine
-        )
+        ) 
 
         self.tabs.addTab(self.mainMenu, "Выбор файлов")
         self.tabs.addTab(self.table, "Данные")

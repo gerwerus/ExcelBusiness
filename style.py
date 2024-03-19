@@ -73,6 +73,31 @@ style = """
         background: pink;
         min-height: 20px;
     }
+    QScrollBar:horizontal {
+    border: none;
+    background: white;
+    height: 10px; /* Изменился с width на height для горизонтального скроллбара */
+    margin: 0px 0px 0px 0px;
+    }
+
+    QScrollBar::add-line:horizontal {
+        background: black;
+        width: 15px; /* Изменился с height на width для горизонтального скроллбара */
+        subcontrol-position: right; /* Изменилось с bottom на right */
+        subcontrol-origin: margin;
+    }
+
+    QScrollBar::sub-line:horizontal {
+        background: black;
+        width: 15px; /* Изменился с height на width для горизонтального скроллбара */
+        subcontrol-position: left; /* Изменилось с top на left */
+        subcontrol-origin: margin;
+    }
+
+    QScrollBar::handle:horizontal {
+        background: pink;
+        min-width: 20px; /* Изменилось с min-height на min-width */
+    }
     QComboBox {
         border: 1px solid gray;
         border-radius: 3px;
