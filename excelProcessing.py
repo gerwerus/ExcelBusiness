@@ -39,7 +39,7 @@ class ExcelTread(QThread):
                         <= QDate(currentStartYear + 1, 8, 31)
                     ):  # Берем практики за год
                         currentDates = dates.get(str(currentStartYear), None)
-                        print(currentDates, el[0], el[1])
+                        # print(currentDates, el[0], el[1])
                         currentPracticeDate = ["", ""]
                         if currentDates:
                             currentPracticeDate = currentDates[
@@ -201,7 +201,7 @@ class ExcelProccessing:
         return zip(practiceSem, practiceView, practiceTyp, laborTime, practiceComp)
 
     def getPracticeDates(self) -> dict:
-        print(self.filename)
+        # print(self.filename)
         startCol = "B"
         startRow = 4
         diapazon = 6

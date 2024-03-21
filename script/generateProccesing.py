@@ -2,6 +2,7 @@ from PySide6.QtCore import QThread
 from docxtpl import DocxTemplate
 import re
 import os
+from pathlib import Path
 
 
 class WordThread(QThread):
@@ -38,55 +39,14 @@ class WordProccesing:
         self.destination = destination
 
     def _makeDir(self):
-        path0 = self.templateFilename.split(".")[0]
+        path0 = Path(self.templateFilename).stem
         path1 = f"{self.data['Направление'].split(' ')[0]}_{self.data['Год выгрузки']}"
         path2 = re.sub(r"[^\w\s]+", "", self.data["Профиль"])
         path3 = str((int(self.data["Семестр"]) + 1) // 2)
 
-        try:
-            os.mkdir(
-                os.path.join(
-                    self.destination,
-                    path0,
-                )
-            )
-        except FileExistsError:
-            pass
-
-        try:
-            os.mkdir(
-                os.path.join(
-                    self.destination,
-                    path0,
-                    path1,
-                )
-            )
-        except FileExistsError:
-            pass
-
-        try:
-            os.mkdir(
-                os.path.join(
-                    self.destination,
-                    path0,
-                    path1,
-                    path2,
-                )
-            )
-        except FileExistsError:
-            pass
-
-        finalPath = os.path.join(
-            self.destination,
-            path0,
-            path1,
-            path2,
-            path3,
-        )
-        try:
-            os.mkdir(finalPath)
-        except FileExistsError:
-            pass
+        finalPath = Path(self.destination) / path0 / path1 / path2 / path3
+        
+        finalPath.mkdir(parents=True, exist_ok=True)
 
         return finalPath
 
