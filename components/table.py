@@ -80,7 +80,6 @@ class TableComponent(QWidget, ProgressChangeMixin):
 
         workbook = openpyxl.Workbook()
         worksheet = workbook.active
-
         for r, row in enumerate(data, start=1):
             for c, col in enumerate(row, start=1):
                 worksheet.cell(row=r, column=c).value = col
