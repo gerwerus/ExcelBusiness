@@ -27,10 +27,16 @@ style = """
         font-weight: bold;
         border: 1px dotted #746127;
     }
+    QDateEdit{
+        color: #000;
+    }
     QMenuBar{
         padding: 0;
         margin: 0;
         font-size: 8pt;
+    }
+    QTableWidget{
+        color: #000;
     }
     #box_action{
         border:0;
@@ -53,31 +59,31 @@ style = """
         background: white;
         width: 10px;
         margin: 0px 0px 0px 0px;
-        } 
+    } 
         
-        QScrollBar::add-line:vertical { 
+    QScrollBar::add-line:vertical { 
         background: black;
         height: 15px;
         subcontrol-position: bottom;
         subcontrol-origin: margin;
-        } 
-        
-        QScrollBar::sub-line:vertical { 
+    } 
+    
+    QScrollBar::sub-line:vertical { 
         background: black;
         height: 15px;
         subcontrol-position: top; 
         subcontrol-origin: margin; 
-        } 
-        
-        QScrollBar::handle:vertical {
+    } 
+    
+    QScrollBar::handle:vertical {
         background: pink;
         min-height: 20px;
     }
     QScrollBar:horizontal {
-    border: none;
-    background: white;
-    height: 10px; /* Изменился с width на height для горизонтального скроллбара */
-    margin: 0px 0px 0px 0px;
+        border: none;
+        background: white;
+        height: 10px; /* Изменился с width на height для горизонтального скроллбара */
+        margin: 0px 0px 0px 0px;
     }
 
     QScrollBar::add-line:horizontal {
@@ -157,6 +163,7 @@ style = """
     /* Style the tab using the tab sub-control. Note that
         it reads QTabBar _not_ QTabWidget */
     QTabBar::tab {
+        color: #000;
         background: pink;
         border: 2px solid #C4C4C3;
         border-bottom-color: #C2C7CB; /* same as the pane color */
@@ -166,7 +173,7 @@ style = """
         padding: 2px;
     }
     QGroupBox {
-         background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                       stop: 0 #E0E0E0, stop: 1 #FFFFFF);
         border: 2px solid gray;
         border-radius: 5px;
