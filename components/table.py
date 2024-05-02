@@ -1,6 +1,7 @@
 from script.generateProccesing import WordThread, WordProccesing
 from components.mixins import ProgressChangeMixin
 
+import openpyxl
 from PySide6.QtCore import QDate
 from PySide6.QtWidgets import (
     QLineEdit,
@@ -37,7 +38,7 @@ class TableComponent(QWidget, ProgressChangeMixin):
         self.clearButton = QPushButton("Очистить")
         self.clearButton.clicked.connect(self.clearTable)
         self.excelButton = QPushButton("Выгрузить в Excel")
-        self.excelButton.clicked.connect(self.excelUnload)
+        self.excelButton.clicked.connect(self.saveToExcel)
         self.generateButton = QPushButton("Сгенерировать")
         self.generateButton.clicked.connect(self.generateWord)
 
@@ -68,8 +69,31 @@ class TableComponent(QWidget, ProgressChangeMixin):
         while self.table.rowCount() > 0:
             self.table.removeRow(0)
 
-    def excelUnload(self):
-        pass
+    def saveToExcel(self):
+        filename, _ = QFileDialog.getSaveFileName(
+            self, "Сохранить файл", ".", "All Files(*.xlsx)"
+        )
+        if not filename:
+            return
+
+        data = self._get_all_data()
+
+        workbook = openpyxl.Workbook()
+        worksheet = workbook.active
+        for r, row in enumerate(data, start=1):
+            for c, col in enumerate(row, start=1):
+                worksheet.cell(row=r, column=c).value = col
+        workbook.save(filename=filename)
+
+    def _get_all_data(self) -> list:
+        _list = []
+        model = self.table.model()
+        for row in range(model.rowCount()):
+            _r = []
+            for column in range(model.columnCount()):
+                _r.append("{}".format(model.index(row, column).data() or ""))
+            _list.append(_r)
+        return _list
 
     def generateWord(self):
         templates = QFileDialog.getOpenFileNames(
