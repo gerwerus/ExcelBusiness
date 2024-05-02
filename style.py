@@ -38,6 +38,9 @@ style = """
     QTableWidget{
         color: #000;
     }
+    QFileDialog{
+        color: #000;
+    }
     #box_action{
         border:0;
         padding: 0;
