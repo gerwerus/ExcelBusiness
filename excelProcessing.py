@@ -1,3 +1,4 @@
+import re
 from typing import Iterable
 from PySide6.QtCore import QThread, QDate
 from openpyxl import load_workbook
@@ -20,9 +21,7 @@ class ExcelTread(QThread):
         try:
             formDate: QDate = self.mainMenu.dateEdit.date()
             for index, obj in enumerate(self.objects):
-                startDate = QDate(
-                    int(obj.getDateStart()), 9, 1
-                )  # год из таблицы, месяц 09, день 01
+                startDate = QDate(int(obj.getDateStart()), 9, 1)  # год из таблицы, месяц 09, день 01
                 if startDate >= formDate:
                     return
                 dt = startDate.daysTo(formDate)
@@ -34,17 +33,13 @@ class ExcelTread(QThread):
                     if el[1] == "Научно-исследовательская работа":
                         continue
                     if (
-                        QDate(currentStartYear, 9, 1)
-                        <= formDate
-                        <= QDate(currentStartYear + 1, 8, 31)
+                        QDate(currentStartYear, 9, 1) <= formDate <= QDate(currentStartYear + 1, 8, 31)
                     ):  # Берем практики за год
                         currentDates = dates.get(str(currentStartYear), None)
                         # print(currentDates, el[0], el[1])
                         currentPracticeDate = ["", ""]
                         if currentDates:
-                            currentPracticeDate = currentDates[
-                                ExcelProccessing.translateVal(el[1])
-                            ]
+                            currentPracticeDate = currentDates[ExcelProccessing.translateVal(el[1])]
                         self.mainMenu.addLine(
                             [
                                 obj.getInstituteName(),
@@ -58,12 +53,11 @@ class ExcelTread(QThread):
                                 currentPracticeDate[1].toString("dd.MM.yyyy"),
                                 "; ".join(el[4]),
                                 str(formDate.year()),
+                                "",
                             ]
                         )
                 obj.book.close()
-                self.mainMenu.changeProgressSignal.emit(
-                    int(((index + 1) / self.ln) * 100)
-                )
+                self.mainMenu.changeProgressSignal.emit(int(((index + 1) / self.ln) * 100))
         finally:
             self.mainMenu.getFilesButton.setEnabled(True)
             self.mainMenu.getFilesFromDirButton.setEnabled(True)
@@ -79,17 +73,16 @@ class ExcelProccessing:
         self.graphList = self.book["График"]
 
     def getInstituteName(self) -> str:
-        return self.titleList["D38"].value.replace(
-            "Институт ", ""
-        )  # Жесткая привязка к D38
+        return self.titleList["D38"].value.replace("Институт ", "")  # Жесткая привязка к D38
 
     def getCode(self) -> str:
-        return self.titleList["D29"].value
+        single_spaces = re.sub(" +", " ", self.titleList["D29"].value)
+        return single_spaces[:-1] if single_spaces[-1] == "." or single_spaces[-1] == "," else single_spaces
 
     def getProfile(self) -> str:
         val = self.titleList["D30"].value
         if val:
-            return val
+            return re.sub(" +", " ", val)
         return "Отсутсвует"
 
     def getDateStart(self) -> str:
@@ -121,9 +114,7 @@ class ExcelProccessing:
             raise Exception("Не удалось распарсить лист Практик")
         for i in range(3, self.practiceList.max_row + 1):
             view = self.practiceList[nameViewColumn + str(i)].value
-            typ = self.practiceList[
-                cellColumn[cellColumn.index(nameViewColumn) + 1] + str(i)
-            ].value
+            typ = self.practiceList[cellColumn[cellColumn.index(nameViewColumn) + 1] + str(i)].value
             course = self.practiceList[nameCourseColumn + str(i)].value
             if nameSemColumn == "no info":
                 sem = 2
@@ -163,11 +154,7 @@ class ExcelProccessing:
                 or self.planList[col + "3"].value == "Итого акад.часов"
             ):
                 hoursColumn = col
-            if (
-                zeColumn != "Неопределено"
-                and hoursColumn != "Неопределено"
-                and nameColumn != "Неопределено"
-            ):
+            if zeColumn != "Неопределено" and hoursColumn != "Неопределено" and nameColumn != "Неопределено":
                 break
         else:
             raise Exception("Не удалось распарсить колонки")
@@ -201,7 +188,6 @@ class ExcelProccessing:
         return zip(practiceSem, practiceView, practiceTyp, laborTime, practiceComp)
 
     def getPracticeDates(self) -> dict:
-        # print(self.filename)
         startCol = "B"
         startRow = 4
         diapazon = 6
@@ -224,9 +210,7 @@ class ExcelProccessing:
             practiceDates = {"У": [], "П": [], "Пд": []}
             for cell in cellColumn[cellColumn.index(startCol) :]:
                 checkNone = False
-                for row in range(
-                    currentStartRow, currentStartRow + diapazon
-                ):  # Воскресенье не берем
+                for row in range(currentStartRow, currentStartRow + diapazon):  # Воскресенье не берем
                     prevDay = currentDay
                     currentDay = self.graphList[cell + str(row)].value
                     if not (currentDay):

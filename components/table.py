@@ -2,7 +2,6 @@ from script.generateProccesing import WordThread, WordProccesing
 from components.mixins import ProgressChangeMixin
 
 import openpyxl
-from PySide6.QtCore import QDate
 from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
@@ -19,10 +18,11 @@ from PySide6.QtWidgets import (
     QLabel,
     QGridLayout,
     QDialogButtonBox,
-    QMessageBox,
+    QInputDialog,
     QProgressBar,
     QTableWidgetItem,
     QTableWidget,
+    QMenu,
 )
 
 
@@ -34,6 +34,10 @@ class TableComponent(QWidget, ProgressChangeMixin):
         self.header = header
         self.table.setColumnCount(len(header))
         self.table.setHorizontalHeaderLabels(header)
+
+        self.context_menu = QMenu(self)
+        action_fill = self.context_menu.addAction("Заполнить")
+        action_fill.triggered.connect(self.fillSelectedCells)
 
         self.clearButton = QPushButton("Очистить")
         self.clearButton.clicked.connect(self.clearTable)
@@ -56,9 +60,10 @@ class TableComponent(QWidget, ProgressChangeMixin):
 
         self.wordThread_instance = WordThread(self)
 
+    def contextMenuEvent(self, event):
+        self.context_menu.exec(event.globalPos())
+
     def addLine(self, line: list[str]):
-        # if len(line) > len(self.header):
-        #     raise Exception("Невозможно вставить в таблицу")
         row = self.table.rowCount()
         self.table.insertRow(row)
         for index, el in enumerate(line):
@@ -70,13 +75,11 @@ class TableComponent(QWidget, ProgressChangeMixin):
             self.table.removeRow(0)
 
     def saveToExcel(self):
-        filename, _ = QFileDialog.getSaveFileName(
-            self, "Сохранить файл", ".", "All Files(*.xlsx)"
-        )
+        filename, _ = QFileDialog.getSaveFileName(self, "Сохранить файл", ".", "All Files(*.xlsx)")
         if not filename:
             return
 
-        data = self._get_all_data()
+        data = [self.header] + self._get_all_data()
 
         workbook = openpyxl.Workbook()
         worksheet = workbook.active
@@ -119,3 +122,11 @@ class TableComponent(QWidget, ProgressChangeMixin):
         self.progressBar.setValue(0)
         self.wordThread_instance.start()
         self.generateButton.setDisabled(self.wordThread_instance.isRunning())
+
+    def fillSelectedCells(self):
+        value, ok = QInputDialog.getText(self, "Заполнить ячейки", "Значение")
+        if ok:
+            for index in self.table.selectedIndexes():
+                item = self.table.itemFromIndex(index)
+                if item:
+                    item.setText(value)

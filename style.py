@@ -5,6 +5,17 @@ style = """
     QLabel{
         color:#000;
     }
+    QMenu {
+        background-color: #93c47d; 
+        border: 1px solid #DADADA;
+    }
+    QMenu::item {
+        background-color: transparent;
+    }
+    QMenu::item:selected { 
+        background-color: #274e13;
+    }
+
     QPushButton{
             color: black;
             background: #93c47d;
