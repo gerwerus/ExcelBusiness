@@ -53,6 +53,8 @@ class WordProccesing:
     def generate(self):
         doc = DocxTemplate(self.template)
         context = {key: self.data[key] for key in self.data}
+        if context['Год выгрузки']:
+            context['ГодВыгрузки'] = context.pop('Год выгрузки')
         doc.render(context)
         course = str((int(self.data["Семестр"]) + 1) // 2)
         profile = re.sub(r"[^\w\s]+", "", self.data["Профиль"])
